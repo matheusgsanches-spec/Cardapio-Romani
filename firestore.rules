@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    match /categories/{categoryId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /foods/{foodId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /menus/{menuId} {
+      // Fallback temporário para documentos publicados no modelo legado.
+      allow get: if resource == null
+        || isAdmin()
+        || (resource.data.status == 'published'
+          && resource.data.keys().hasAll(['days'])
+          && !resource.data.keys().hasAny(['draftDays']));
+      allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /publishedMenus/{menuId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}
