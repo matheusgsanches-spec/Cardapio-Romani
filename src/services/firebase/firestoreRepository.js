@@ -11,7 +11,7 @@ import {
   writeBatch,
 } from 'firebase/firestore'
 import { db } from './config'
-import { getDayKey, normalizeMenu, serializeMenuDays } from '../../domain/week'
+import { getDayKey, normalizeMenu, serializeDailySpecials, serializeMenuDays, serializeMenuPrices } from '../../domain/week'
 
 const mapSnapshot = (snapshot) => snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
 
@@ -73,9 +73,10 @@ export const firestoreRepository = {
       }
     }
 
-    if (!publicMenu) return { menu: null, items: [], foods: [], categories: [] }
+    if (!publicMenu) return { menu: null, items: [], foods: [], categories: [], dailySpecial: '', prices: serializeMenuPrices() }
 
-    const items = [...(publicMenu.days?.[getDayKey(date)] || [])]
+    const dayKey = getDayKey(date)
+    const items = [...(publicMenu.days?.[dayKey] || [])]
       .sort((first, second) => (first.order ?? 0) - (second.order ?? 0))
     const foodIds = [...new Set(items.map((item) => item.foodId))]
     const foodSnapshots = await Promise.all(foodIds.map((id) => getDoc(doc(db, 'foods', id))))
@@ -84,7 +85,14 @@ export const firestoreRepository = {
     const categorySnapshots = await Promise.all(categoryIds.map((id) => getDoc(doc(db, 'categories', id))))
     const categories = categorySnapshots.filter((snapshot) => snapshot.exists()).map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
 
-    return { menu: publicMenu, items, foods, categories }
+    return {
+      menu: publicMenu,
+      items,
+      foods,
+      categories,
+      dailySpecial: String(publicMenu.dailySpecials?.[dayKey] || ''),
+      prices: serializeMenuPrices(publicMenu.prices),
+    }
   },
 
   subscribeMenu(weekStart, onData, onError) {
@@ -102,6 +110,8 @@ export const firestoreRepository = {
     const existingData = snapshot.exists() ? snapshot.data() : null
     const hadPublishedVersion = existingData?.status === 'published'
     const draftDays = serializeMenuDays(menu.days)
+    const draftDailySpecials = serializeDailySpecials(menu.dailySpecials)
+    const draftPrices = serializeMenuPrices(menu.prices)
     const nextStatus = publish || hadPublishedVersion ? 'published' : 'draft'
     const hasUnpublishedChanges = !publish && hadPublishedVersion
     const timestamp = serverTimestamp()
@@ -112,6 +122,8 @@ export const firestoreRepository = {
       weekEnd: menu.weekEnd,
       status: nextStatus,
       draftDays,
+      draftDailySpecials,
+      draftPrices,
       hasUnpublishedChanges,
       updatedAt: timestamp,
       ...(publish ? { publishedAt: timestamp } : {}),
@@ -122,12 +134,22 @@ export const firestoreRepository = {
       ? existingData.days
       : null
     const publicDays = publish ? draftDays : legacyPublishedDays
+    const legacyPublishedDailySpecials = hadPublishedVersion && existingData?.dailySpecials && !existingData?.draftDailySpecials
+      ? existingData.dailySpecials
+      : null
+    const publicDailySpecials = publish ? draftDailySpecials : legacyPublishedDailySpecials
+    const legacyPublishedPrices = hadPublishedVersion && existingData?.prices && !existingData?.draftPrices
+      ? existingData.prices
+      : null
+    const publicPrices = publish ? draftPrices : legacyPublishedPrices
     if (publicDays) {
       batch.set(doc(db, 'publishedMenus', menu.id), {
         weekStart: menu.weekStart,
         weekEnd: menu.weekEnd,
         status: 'published',
         days: publicDays,
+        ...(publicDailySpecials ? { dailySpecials: publicDailySpecials } : {}),
+        ...(publicPrices ? { prices: publicPrices } : {}),
         publishedAt: publish ? timestamp : existingData?.updatedAt || timestamp,
         updatedAt: timestamp,
       }, { merge: true })
@@ -140,6 +162,8 @@ export const firestoreRepository = {
       hasUnpublishedChanges,
       exists: true,
       days: draftDays,
+      dailySpecials: draftDailySpecials,
+      prices: draftPrices,
     }
   },
 }

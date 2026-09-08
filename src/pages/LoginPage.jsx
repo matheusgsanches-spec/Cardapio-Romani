@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ArrowRight, BookOpen, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/ui/Button'
+import BrandLogo from '../components/ui/BrandLogo'
 
 export default function LoginPage() {
   const { user, signIn, isDemo } = useAuth()
@@ -33,7 +34,7 @@ export default function LoginPage() {
   return (
     <main className="login-page">
       <section className="login-visual">
-        <div className="login-visual__brand"><span className="brand-mark"><BookOpen size={21} /></span> ROMANI</div>
+        <div className="login-visual__brand"><BrandLogo className="brand-logo--login" alt="" /><span>ROMANI CAFÉ</span></div>
         <div className="login-visual__content">
           <span className="eyebrow eyebrow--light">GESTÃO DE BUFFET</span>
           <h1>Uma semana bem servida começa aqui.</h1>
@@ -45,11 +46,11 @@ export default function LoginPage() {
             <div><strong>QUA</strong><i /><i /><i /></div>
           </div>
         </div>
-        <small>© 2026 Buffet Romani</small>
+        <small>© 2026 Romani Café</small>
       </section>
       <section className="login-form-panel">
         <form className="login-form" onSubmit={handleSubmit}>
-          <span className="login-form__mobile-brand"><BookOpen size={19} /> ROMANI</span>
+          <span className="login-form__mobile-brand"><BrandLogo className="brand-logo--mobile" alt="" /> ROMANI CAFÉ</span>
           <div><span className="eyebrow">ÁREA ADMINISTRATIVA</span><h2>Bem-vindo de volta</h2><p>Entre para gerenciar o cardápio do buffet.</p></div>
           {isDemo && <div className="inline-notice">O projeto está no modo local. A área administrativa é liberada automaticamente.</div>}
           {error && <div className="form-error" role="alert">{error}</div>}

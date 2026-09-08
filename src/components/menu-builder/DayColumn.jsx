@@ -1,7 +1,8 @@
 import { useDroppable } from '@dnd-kit/core'
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { CalendarPlus, Trash2 } from 'lucide-react'
+import { CalendarPlus, NotebookPen, Trash2 } from 'lucide-react'
+import { BRAND_CATEGORY_HUES } from '../../config/brand'
 import { addDays, formatShortDate } from '../../domain/week'
 import FoodCard from './FoodCard'
 
@@ -24,7 +25,7 @@ function SortableMenuFood({ item, day, food, category, onRemove }) {
   )
 }
 
-export default function DayColumn({ day, dayIndex, weekStart, items, foods, categories, onRemove, onClear, mobileVisible, dragActive, dropBlocked }) {
+export default function DayColumn({ day, dayIndex, weekStart, items, dailySpecial, foods, categories, onRemove, onClear, onDailySpecialChange, mobileVisible, dragActive, dropBlocked }) {
   const { setNodeRef, isOver } = useDroppable({ id: `day:${day.key}`, data: { type: 'day', day: day.key } })
   const date = addDays(weekStart, dayIndex)
   const today = new Date()
@@ -33,7 +34,7 @@ export default function DayColumn({ day, dayIndex, weekStart, items, foods, cate
   const getCategory = (id) => {
     const categoryIndex = categories.findIndex((category) => category.id === id)
     if (categoryIndex < 0) return undefined
-    return { ...categories[categoryIndex], hue: [137, 38, 206, 8, 169, 219, 326][categoryIndex % 7] }
+    return { ...categories[categoryIndex], hue: BRAND_CATEGORY_HUES[categoryIndex % BRAND_CATEGORY_HUES.length] }
   }
 
   return (
@@ -43,6 +44,18 @@ export default function DayColumn({ day, dayIndex, weekStart, items, foods, cate
         {isToday && <i>HOJE</i>}
       </header>
       <div className="day-column__meta"><span>{items.length} {items.length === 1 ? 'item' : 'itens'}</span>{items.length > 0 && <button type="button" onClick={onClear}><Trash2 size={13} /> Limpar</button>}</div>
+      <label className="daily-special-field">
+        <span><NotebookPen size={15} /> Prato feito do dia</span>
+        <textarea
+          value={dailySpecial}
+          onChange={(event) => onDailySpecialChange(event.target.value)}
+          maxLength={500}
+          rows={3}
+          placeholder="Ex.: Bife acebolado, arroz, feijão e salada"
+          aria-label={`Prato feito de ${day.label}`}
+        />
+        <small>{dailySpecial.length}/500</small>
+      </label>
       <SortableContext items={items.map((item) => `menu:${day.key}:${item.instanceId}`)} strategy={verticalListSortingStrategy}>
         <div className="day-column__dropzone" ref={setNodeRef}>
           {items.map((item) => {

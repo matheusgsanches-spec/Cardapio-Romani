@@ -11,13 +11,14 @@ import {
 } from '@dnd-kit/core'
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { ChevronLeft, ChevronRight, Library } from 'lucide-react'
+import { BRAND_CATEGORY_HUES } from '../../config/brand'
 import { getDayKey, getWeekId, WEEK_DAYS } from '../../domain/week'
 import { useToast } from '../../context/ToastContext'
 import FoodLibrary from './FoodLibrary'
 import DayColumn from './DayColumn'
 import FoodCard from './FoodCard'
 
-export default function MenuBuilder({ weekStart, days, onChange, foods, categories }) {
+export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, onDailySpecialChange, foods, categories }) {
   const { showToast } = useToast()
   const currentWeek = getWeekId(new Date()) === getWeekId(weekStart)
   const todayKey = getDayKey(new Date())
@@ -33,7 +34,7 @@ export default function MenuBuilder({ weekStart, days, onChange, foods, categori
   const activeFood = useMemo(() => activeDrag ? foods.find((food) => food.id === activeDrag.foodId) : null, [activeDrag, foods])
   const activeCategoryIndex = activeFood ? categories.findIndex((category) => category.id === activeFood.categoryId) : -1
   const activeCategory = activeCategoryIndex >= 0
-    ? { ...categories[activeCategoryIndex], hue: [137, 38, 206, 8, 169, 219, 326][activeCategoryIndex % 7] }
+    ? { ...categories[activeCategoryIndex], hue: BRAND_CATEGORY_HUES[activeCategoryIndex % BRAND_CATEGORY_HUES.length] }
     : null
 
   function updateDay(day, updater) {
@@ -126,6 +127,7 @@ export default function MenuBuilder({ weekStart, days, onChange, foods, categori
                 dayIndex={index}
                 weekStart={weekStart}
                 items={dayItems}
+                dailySpecial={dailySpecials?.[day.key] || ''}
                 foods={foods}
                 categories={categories}
                 mobileVisible={mobileDay === index}
@@ -133,6 +135,7 @@ export default function MenuBuilder({ weekStart, days, onChange, foods, categori
                 dropBlocked={dropBlocked}
                 onRemove={(instanceId) => updateDay(day.key, (items) => items.filter((item) => item.instanceId !== instanceId))}
                 onClear={() => updateDay(day.key, () => [])}
+                onDailySpecialChange={(value) => onDailySpecialChange(day.key, value)}
               />
             )
           })}

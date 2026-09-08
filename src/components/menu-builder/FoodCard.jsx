@@ -9,7 +9,7 @@ export default function FoodCard({ food, category, dragging = false, overlay = f
       {...listeners}
       ref={setNodeRef}
     >
-      <span className="food-card__accent" style={{ '--category-hue': category?.hue || 130 }} />
+      <span className="food-card__accent" style={{ '--category-hue': category?.hue || 28 }} />
       <GripVertical className="food-card__grip" size={16} aria-hidden="true" />
       <div className="food-card__content"><strong>{food?.name || 'Alimento indisponível'}</strong>{category && <small>{category.name}</small>}</div>
       {onRemove ? (

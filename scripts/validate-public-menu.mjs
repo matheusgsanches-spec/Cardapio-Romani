@@ -30,9 +30,12 @@ assert.equal(getDateInTimeZone(new Date('2026-08-25T02:00:00Z'), 'America/Sao_Pa
 const emptyMenu = normalizeMenu(null, monday)
 assert.equal(emptyMenu.status, 'draft')
 assert.equal(emptyMenu.days.monday.length, 0)
+assert.deepEqual(emptyMenu.prices, { buffet: null, dailySpecial: null })
 
 const draftMenu = {
   ...emptyMenu,
+  prices: { buffet: '49.90', dailySpecial: '27,50' },
+  dailySpecials: { ...emptyMenu.dailySpecials, monday: 'Bife acebolado, arroz, feijão e salada' },
   days: {
     ...emptyMenu.days,
     monday: [
@@ -45,12 +48,16 @@ const draftMenu = {
 
 await localRepository.saveMenu(draftMenu, { publish: false })
 let publicResult = await localRepository.getPublicDailyMenu(monday)
+assert.equal(publicResult.dailySpecial, '', 'Prato feito em rascunho não pode aparecer publicamente')
 assert.equal(publicResult.menu, null, 'Rascunhos novos não podem aparecer publicamente')
+assert.deepEqual(publicResult.prices, { buffet: null, dailySpecial: null }, 'Preços em rascunho não podem aparecer publicamente')
 
 await localRepository.saveMenu(draftMenu, { publish: true })
 publicResult = await localRepository.getPublicDailyMenu(monday)
+assert.equal(publicResult.dailySpecial, 'Bife acebolado, arroz, feijão e salada', 'Prato feito publicado deve aparecer no dia correto')
 assert.equal(publicResult.items.length, 2, 'Segunda publicada deve carregar seus dois itens')
 assert.deepEqual(publicResult.items.map((item) => item.foodId), ['food-1', 'food-2'])
+assert.deepEqual(publicResult.prices, { buffet: 49.9, dailySpecial: 27.5 }, 'Preços publicados devem aparecer no cardápio público')
 
 const groups = groupDailyFoods(publicResult.items, publicResult.foods, [
   { id: 'cat-feijao', name: 'Feijão', order: 2 },
@@ -62,15 +69,21 @@ assert.equal(groups[0].foods.length, 2, 'Vários alimentos da categoria devem pe
 const changedDraft = {
   ...draftMenu,
   status: 'published',
+  prices: { buffet: 52, dailySpecial: 29.9 },
+  dailySpecials: { ...draftMenu.dailySpecials, monday: 'Frango grelhado com acompanhamentos' },
   days: { ...draftMenu.days, monday: [{ instanceId: 'three', foodId: 'food-3', order: 0 }] },
 }
 await localRepository.saveMenu(changedDraft, { publish: false })
 publicResult = await localRepository.getPublicDailyMenu(monday)
+assert.equal(publicResult.dailySpecial, 'Bife acebolado, arroz, feijão e salada', 'Salvar rascunho deve preservar o prato feito já publicado')
 assert.deepEqual(publicResult.items.map((item) => item.foodId), ['food-1', 'food-2'], 'Salvar rascunho deve preservar o snapshot publicado')
+assert.deepEqual(publicResult.prices, { buffet: 49.9, dailySpecial: 27.5 }, 'Salvar rascunho deve preservar os preços publicados')
 
 await localRepository.saveMenu(changedDraft, { publish: true })
 publicResult = await localRepository.getPublicDailyMenu(monday)
+assert.equal(publicResult.dailySpecial, 'Frango grelhado com acompanhamentos', 'Nova publicação deve atualizar o prato feito')
 assert.deepEqual(publicResult.items.map((item) => item.foodId), ['food-3'], 'Publicar deve substituir o snapshot por um único item')
+assert.deepEqual(publicResult.prices, { buffet: 52, dailySpecial: 29.9 }, 'Nova publicação deve atualizar os preços públicos')
 
 const weekendResult = await localRepository.getPublicDailyMenu(sunday)
 assert.equal(weekendResult.items.length, 0, 'Domingo sem itens deve retornar estado vazio, não fechamento presumido')
@@ -79,4 +92,4 @@ memory.clear()
 const newWeekResult = await localRepository.getPublicDailyMenu(new Date('2026-08-31T12:00:00-03:00'))
 assert.equal(newWeekResult.menu, null, 'Semana nova sem dados deve retornar indisponível')
 
-console.log('10 cenários de domínio e publicação validados com sucesso.')
+console.log('15 cenários de domínio e publicação validados com sucesso.')

@@ -1,4 +1,5 @@
 import { ClipboardList } from 'lucide-react'
+import { BRAND_CATEGORY_HUES } from '../../config/brand'
 import { WEEK_DAYS } from '../../domain/week'
 import EmptyState from '../ui/EmptyState'
 
@@ -20,7 +21,7 @@ export default function MenuTable({ menu, foods, categories }) {
         <tbody>
           {activeRows.map(({ category, days }, index) => (
             <tr key={category.id}>
-              <th><i style={{ '--row-hue': [137, 38, 206, 8, 169, 219, 326][index % 7] }} />{category.name}</th>
+              <th><i style={{ '--row-hue': BRAND_CATEGORY_HUES[index % BRAND_CATEGORY_HUES.length] }} />{category.name}</th>
               {WEEK_DAYS.map((day) => <td key={day.key}>{days[day.key].length ? days[day.key].map((food) => <span key={food.id}>{food.name}</span>) : <em>—</em>}</td>)}
             </tr>
           ))}

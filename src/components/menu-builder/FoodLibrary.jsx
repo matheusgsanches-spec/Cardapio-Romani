@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChevronDown, Library, Plus, SearchX, X } from 'lucide-react'
 import { useDraggable } from '@dnd-kit/core'
 import { Link } from 'react-router-dom'
+import { BRAND_CATEGORY_HUES } from '../../config/brand'
 import FoodCard from './FoodCard'
 import SearchInput from '../ui/SearchInput'
 import EmptyState from '../ui/EmptyState'
@@ -48,7 +49,7 @@ export default function FoodLibrary({ foods, categories, onClose }) {
           const categoryIndex = activeCategories.findIndex((item) => item.id === category.id)
           const categoryFoods = visibleFoods.filter((food) => food.categoryId === category.id)
           if (!categoryFoods.length) return null
-          const displayCategory = { ...category, hue: [137, 38, 206, 8, 169, 219, 326][categoryIndex % 7] }
+          const displayCategory = { ...category, hue: BRAND_CATEGORY_HUES[categoryIndex % BRAND_CATEGORY_HUES.length] }
           const isCollapsed = collapsed[category.id]
           return (
             <section className="food-group" key={category.id}>

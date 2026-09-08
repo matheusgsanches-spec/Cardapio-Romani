@@ -1,4 +1,4 @@
-import { getDayKey, normalizeMenu, serializeMenuDays } from '../../domain/week.js'
+import { getDayKey, normalizeMenu, serializeDailySpecials, serializeMenuDays, serializeMenuPrices } from '../../domain/week.js'
 
 const KEYS = {
   categories: 'romani_dev_categories',
@@ -93,15 +93,23 @@ export const localRepository = {
     const legacyMenu = menus[normalized.id]
     const publicMenu = publishedMenus[normalized.id]
       || (legacyMenu?.status === 'published' && legacyMenu.days && !legacyMenu.draftDays ? legacyMenu : null)
-    if (!publicMenu) return { menu: null, items: [], foods: [], categories: [] }
+    if (!publicMenu) return { menu: null, items: [], foods: [], categories: [], dailySpecial: '', prices: serializeMenuPrices() }
 
-    const items = [...(publicMenu.days?.[getDayKey(date)] || [])]
+    const dayKey = getDayKey(date)
+    const items = [...(publicMenu.days?.[dayKey] || [])]
       .sort((first, second) => (first.order ?? 0) - (second.order ?? 0))
     const foodIds = new Set(items.map((item) => item.foodId))
     const foods = read('foods', seedFoods).filter((food) => foodIds.has(food.id))
     const categoryIds = new Set(foods.map((food) => food.categoryId))
     const categories = read('categories', seedCategories).filter((category) => categoryIds.has(category.id))
-    return { menu: publicMenu, items, foods, categories }
+    return {
+      menu: publicMenu,
+      items,
+      foods,
+      categories,
+      dailySpecial: String(publicMenu.dailySpecials?.[dayKey] || ''),
+      prices: serializeMenuPrices(publicMenu.prices),
+    }
   },
 
   subscribeMenu(weekStart, onData) {
@@ -115,6 +123,8 @@ export const localRepository = {
     const existing = menus[menu.id]
     const hadPublishedVersion = existing?.status === 'published'
     const draftDays = serializeMenuDays(menu.days)
+    const draftDailySpecials = serializeDailySpecials(menu.dailySpecials)
+    const draftPrices = serializeMenuPrices(menu.prices)
     const nextStatus = publish || hadPublishedVersion ? 'published' : 'draft'
     const hasUnpublishedChanges = !publish && hadPublishedVersion
     const now = new Date().toISOString()
@@ -125,6 +135,8 @@ export const localRepository = {
       weekEnd: menu.weekEnd,
       status: nextStatus,
       draftDays,
+      draftDailySpecials,
+      draftPrices,
       hasUnpublishedChanges,
       updatedAt: now,
       ...(publish ? { publishedAt: now } : {}),
@@ -136,6 +148,14 @@ export const localRepository = {
       ? existing.days
       : null
     const publicDays = publish ? draftDays : legacyPublishedDays
+    const legacyPublishedDailySpecials = hadPublishedVersion && existing?.dailySpecials && !existing?.draftDailySpecials
+      ? existing.dailySpecials
+      : null
+    const publicDailySpecials = publish ? draftDailySpecials : legacyPublishedDailySpecials
+    const legacyPublishedPrices = hadPublishedVersion && existing?.prices && !existing?.draftPrices
+      ? existing.prices
+      : null
+    const publicPrices = publish ? draftPrices : legacyPublishedPrices
     if (publicDays) {
       const publishedMenus = read('publishedMenus', {})
       publishedMenus[menu.id] = {
@@ -144,12 +164,22 @@ export const localRepository = {
         weekEnd: menu.weekEnd,
         status: 'published',
         days: publicDays,
+        ...(publicDailySpecials ? { dailySpecials: publicDailySpecials } : {}),
+        ...(publicPrices ? { prices: publicPrices } : {}),
         publishedAt: publish ? now : existing?.updatedAt || now,
         updatedAt: now,
       }
       write('publishedMenus', publishedMenus)
     }
 
-    return { ...menu, status: nextStatus, hasUnpublishedChanges, exists: true, days: draftDays }
+    return {
+      ...menu,
+      status: nextStatus,
+      hasUnpublishedChanges,
+      exists: true,
+      days: draftDays,
+      dailySpecials: draftDailySpecials,
+      prices: draftPrices,
+    }
   },
 }

@@ -70,6 +70,20 @@ export function emptyDays() {
   return Object.fromEntries(WEEK_DAYS.map(({ key }) => [key, []]))
 }
 
+export function emptyDailySpecials() {
+  return Object.fromEntries(WEEK_DAYS.map(({ key }) => [key, '']))
+}
+
+export function emptyMenuPrices() {
+  return { buffet: null, dailySpecial: null }
+}
+
+function normalizePrice(value) {
+  if (value === null || value === undefined || value === '') return null
+  const amount = Number(String(value).replace(',', '.'))
+  return Number.isFinite(amount) && amount >= 0 ? Math.round(amount * 100) / 100 : null
+}
+
 export function formatShortDate(date) {
   return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' })
     .format(date)
@@ -102,6 +116,8 @@ export function normalizeMenu(menu, weekStart) {
   const start = getWeekStart(weekStart)
   const status = menu?.status || (menu ? 'published' : 'draft')
   const sourceDays = menu?.draftDays || menu?.days || emptyDays()
+  const sourceDailySpecials = menu?.draftDailySpecials || menu?.dailySpecials || emptyDailySpecials()
+  const sourcePrices = menu?.draftPrices || menu?.prices || emptyMenuPrices()
   const days = Object.fromEntries(WEEK_DAYS.map(({ key }) => [
     key,
     [...(sourceDays[key] || [])]
@@ -114,10 +130,25 @@ export function normalizeMenu(menu, weekStart) {
     weekEnd: toISODate(getWeekEnd(start)),
     status,
     days,
+    dailySpecials: Object.fromEntries(WEEK_DAYS.map(({ key }) => [key, String(sourceDailySpecials[key] || '')])),
+    prices: serializeMenuPrices(sourcePrices),
     publishedDays: menu?.publishedDays || (status === 'published' ? menu?.days : undefined),
+    publishedDailySpecials: menu?.publishedDailySpecials || (status === 'published' ? menu?.dailySpecials : undefined),
+    publishedPrices: menu?.publishedPrices || (status === 'published' ? menu?.prices : undefined),
     hasUnpublishedChanges: Boolean(menu?.hasUnpublishedChanges),
     exists: Boolean(menu),
   }
+}
+
+export function serializeMenuPrices(prices) {
+  return {
+    buffet: normalizePrice(prices?.buffet),
+    dailySpecial: normalizePrice(prices?.dailySpecial),
+  }
+}
+
+export function serializeDailySpecials(dailySpecials) {
+  return Object.fromEntries(WEEK_DAYS.map(({ key }) => [key, String(dailySpecials?.[key] || '').trim()]))
 }
 
 export function serializeMenuDays(days) {

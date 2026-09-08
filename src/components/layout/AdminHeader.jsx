@@ -8,7 +8,6 @@ const routeTitles = {
   '/admin/alimentos': ['Alimentos', 'Gerencie a biblioteca do buffet.'],
   '/admin/categorias': ['Categorias', 'Organize os alimentos por grupos.'],
   '/admin/tabela': ['Tabela semanal', 'Veja o cardápio consolidado por categoria.'],
-  '/admin/configuracoes': ['Configurações', 'Ambiente e integração do sistema.'],
 }
 
 export default function AdminHeader({ onOpenSidebar }) {

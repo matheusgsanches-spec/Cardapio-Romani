@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Check, Eye, Globe2, Save } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Check, CircleDollarSign, Eye, Globe2, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import MenuBuilder from '../../components/menu-builder/MenuBuilder'
 import WeekSelector from '../../components/menu-builder/WeekSelector'
@@ -19,6 +19,8 @@ export default function MenuBuilderPage() {
   const [saving, setSaving] = useState(null)
   const [dirty, setDirty] = useState(false)
   const [pendingWeek, setPendingWeek] = useState(null)
+  const editVersion = useRef(0)
+  const failedAutosaveVersion = useRef(null)
 
   useEffect(() => {
     let active = true
@@ -39,6 +41,34 @@ export default function MenuBuilderPage() {
     return () => window.removeEventListener('beforeunload', warn)
   }, [dirty])
 
+  useEffect(() => {
+    if (!dirty || !menu || saving || failedAutosaveVersion.current === editVersion.current) return undefined
+    const version = editVersion.current
+    const timeout = window.setTimeout(async () => {
+      setSaving('draft')
+      try {
+        const savedMenu = await saveMenu(menu, { publish: false })
+        if (editVersion.current === version) {
+          setMenu(savedMenu)
+          setDirty(false)
+        }
+        failedAutosaveVersion.current = null
+      } catch {
+        failedAutosaveVersion.current = version
+        showToast('Não foi possível salvar o rascunho automaticamente.', 'error')
+      } finally {
+        setSaving((current) => current === 'draft' ? null : current)
+      }
+    }, 900)
+    return () => window.clearTimeout(timeout)
+  }, [dirty, menu, saveMenu, saving, showToast])
+
+  function markChanged() {
+    editVersion.current += 1
+    failedAutosaveVersion.current = null
+    setDirty(true)
+  }
+
   function requestWeek(nextWeek) {
     if (dirty) setPendingWeek(nextWeek)
     else {
@@ -47,16 +77,16 @@ export default function MenuBuilderPage() {
     }
   }
 
-  async function handleSave(publish = false) {
+  async function handlePublish() {
     if (!menu) return
-    setSaving(publish ? 'publish' : 'draft')
+    setSaving('publish')
     try {
-      const savedMenu = await saveMenu(menu, { publish })
+      const savedMenu = await saveMenu(menu, { publish: true })
       setMenu(savedMenu)
       setDirty(false)
-      showToast(publish ? 'Cardápio publicado com sucesso.' : 'Rascunho salvo com sucesso.')
+      showToast('Cardápio publicado com sucesso.')
     } catch {
-      showToast(publish ? 'Não foi possível publicar o cardápio.' : 'Não foi possível salvar o rascunho.', 'error')
+      showToast('Não foi possível publicar o cardápio.', 'error')
     } finally {
       setSaving(null)
     }
@@ -67,24 +97,44 @@ export default function MenuBuilderPage() {
       <section className="builder-toolbar">
         <WeekSelector value={weekStart} onChange={requestWeek} />
         <div className="builder-toolbar__actions">
-          {dirty ? <span className="unsaved-indicator"><i /> Alterações não salvas</span>
+          {saving === 'draft' ? <span className="draft-indicator"><Save size={14} /> Salvando rascunho...</span>
+            : dirty ? <span className="unsaved-indicator"><i /> Salvamento automático pendente</span>
             : menu?.hasUnpublishedChanges ? <span className="draft-indicator"><Save size={14} /> Rascunho salvo</span>
               : menu?.status === 'published' ? <span className="published-indicator"><Check size={15} /> Publicado</span>
-                : <span className="draft-indicator"><Save size={14} /> Rascunho</span>}
+                : <span className="draft-indicator"><Save size={14} />{menu?.exists ? 'Rascunho salvo' : 'Rascunho'}</span>}
           <Link className="button button--secondary button--md" to="/admin/tabela"><Eye size={16} /> Visualizar tabela</Link>
-          <Button variant="secondary" onClick={() => handleSave(false)} disabled={!dirty || Boolean(saving)}><Save size={17} />{saving === 'draft' ? 'Salvando...' : 'Salvar rascunho'}</Button>
-          <Button onClick={() => handleSave(true)} disabled={!menu || Boolean(saving) || (!dirty && menu.status === 'published' && !menu.hasUnpublishedChanges)}><Globe2 size={17} />{saving === 'publish' ? 'Publicando...' : 'Publicar cardápio'}</Button>
+          <Button onClick={handlePublish} disabled={!menu || Boolean(saving) || (!dirty && menu.status === 'published' && !menu.hasUnpublishedChanges)}><Globe2 size={17} />{saving === 'publish' ? 'Publicando...' : 'Publicar cardápio'}</Button>
         </div>
       </section>
       {loading || !menu ? <div className="builder-loading"><Loader label="Carregando a semana..." /></div> : (
-        <MenuBuilder
-          key={menu.id}
-          weekStart={weekStart}
-          days={menu.days}
-          foods={foods}
-          categories={categories}
-          onChange={(days) => { setMenu((current) => ({ ...current, days })); setDirty(true) }}
-        />
+        <>
+          <section className="menu-pricing-card" aria-labelledby="menu-pricing-title">
+            <div className="menu-pricing-card__heading">
+              <span><CircleDollarSign size={19} /></span>
+              <div><strong id="menu-pricing-title">Preços da semana</strong><small>Os valores serão exibidos no cardápio público após a publicação.</small></div>
+            </div>
+            <div className="menu-pricing-card__fields">
+              <label>
+                <span>Buffet</span>
+                <div><small>R$</small><input type="number" min="0" step="0.01" inputMode="decimal" value={menu.prices?.buffet ?? ''} onChange={(event) => { setMenu((current) => ({ ...current, prices: { ...current.prices, buffet: event.target.value } })); markChanged() }} placeholder="0,00" aria-label="Preço do buffet" /></div>
+              </label>
+              <label>
+                <span>Prato feito</span>
+                <div><small>R$</small><input type="number" min="0" step="0.01" inputMode="decimal" value={menu.prices?.dailySpecial ?? ''} onChange={(event) => { setMenu((current) => ({ ...current, prices: { ...current.prices, dailySpecial: event.target.value } })); markChanged() }} placeholder="0,00" aria-label="Preço do prato feito" /></div>
+              </label>
+            </div>
+          </section>
+          <MenuBuilder
+            key={menu.id}
+            weekStart={weekStart}
+            days={menu.days}
+            dailySpecials={menu.dailySpecials}
+            foods={foods}
+            categories={categories}
+            onChange={(days) => { setMenu((current) => ({ ...current, days })); markChanged() }}
+            onDailySpecialChange={(day, value) => { setMenu((current) => ({ ...current, dailySpecials: { ...current.dailySpecials, [day]: value } })); markChanged() }}
+          />
+        </>
       )}
       <ConfirmModal
         open={Boolean(pendingWeek)}

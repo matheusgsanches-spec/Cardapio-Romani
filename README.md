@@ -41,8 +41,8 @@ VITE_FIREBASE_PROJECT_ID=...
 VITE_FIREBASE_STORAGE_BUCKET=...
 VITE_FIREBASE_MESSAGING_SENDER_ID=...
 VITE_FIREBASE_APP_ID=...
-VITE_RESTAURANT_NAME=Romani
-VITE_RESTAURANT_TAGLINE=Buffet & Sabores
+VITE_RESTAURANT_NAME=Romani Café
+VITE_RESTAURANT_TAGLINE=Café, buffet & sabores
 VITE_RESTAURANT_TIME_ZONE=America/Sao_Paulo
 VITE_RESTAURANT_SERVICE_HOURS=
 ```
@@ -76,6 +76,9 @@ menus/{YYYY-MM-DD}
     monday: [{ instanceId, foodId, order }]
     tuesday: [{ instanceId, foodId, order }]
     ...
+  draftPrices:
+    buffet: 49.90
+    dailySpecial: 27.50
   createdAt: timestamp
   updatedAt: timestamp
   publishedAt: timestamp
@@ -87,6 +90,9 @@ publishedMenus/{YYYY-MM-DD}
   days:
     monday: [{ instanceId, foodId, order }]
     ...
+  prices:
+    buffet: 49.90
+    dailySpecial: 27.50
   publishedAt: timestamp
   updatedAt: timestamp
 ```
@@ -110,8 +116,8 @@ Antes de produção, considere trocar a verificação genérica de usuário aute
 
 ## Fluxo de publicação
 
-1. O administrador edita os dias localmente no React.
-2. **Salvar rascunho** grava apenas `menus/{weekStart}.draftDays`.
+1. O administrador edita os dias e preços localmente no React.
+2. O salvamento automático grava o rascunho em `menus/{weekStart}` após uma breve pausa na edição.
 3. **Publicar cardápio** grava o rascunho e `publishedMenus/{weekStart}` no mesmo batch.
 4. `/menu` calcula a data no fuso configurado, acessa diretamente o snapshot da semana e seleciona apenas o dia atual.
 5. Somente os documentos de alimentos e categorias referenciados naquele dia são lidos.
@@ -147,4 +153,16 @@ src/
 
 ## Exportação XLSX
 
-`MenuTable` já recebe um modelo normalizado (`menu`, `foods`, `categories`). Uma futura camada `services/export` pode transformar os mesmos dados em linhas e gerar XLSX sem alterar o Firestore nem os componentes de edição.
+Na página **Visualizar tabela**, o botão **Exportar XLSX** gera uma planilha real da semana selecionada. O arquivo inclui:
+
+- faixa de datas e situação do cardápio;
+- valores do buffet e do prato feito;
+- prato feito de cada dia;
+- alimentos organizados por categoria e dia;
+- identidade visual do Romani Café, colunas dimensionadas e cabeçalhos fixos.
+
+A biblioteca de geração é carregada somente quando o administrador solicita a exportação. Para validar a estrutura e a integridade do arquivo:
+
+```bash
+npm run validate:xlsx
+```
