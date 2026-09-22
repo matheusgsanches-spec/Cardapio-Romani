@@ -4,7 +4,7 @@ import PublicDailyMenu from '../../components/public/PublicDailyMenu'
 import PublicMenuSkeleton from '../../components/public/PublicMenuSkeleton'
 import BrandLogo from '../../components/ui/BrandLogo'
 import { restaurantConfig } from '../../config/restaurant'
-import { getDateInTimeZone, getDayKey, WEEK_DAYS } from '../../domain/week'
+import { addDays, getDateInTimeZone, getDayKey, getWeekStart, WEEK_DAYS } from '../../domain/week'
 import { dataRepository } from '../../services/dataRepository'
 import { cachePublicMenu, getCachedPublicMenu } from '../../services/publicMenuCache'
 
@@ -13,26 +13,36 @@ export default function PublicMenuPage() {
   const [state, setState] = useState({ status: 'loading', data: null })
   const [isOnline, setIsOnline] = useState(() => navigator.onLine)
   const today = useMemo(() => getDateInTimeZone(new Date(), restaurantConfig.timeZone), [])
-  const day = WEEK_DAYS.find((entry) => entry.key === getDayKey(today))
+  const weekStart = useMemo(() => getWeekStart(today), [today])
+  const todayKey = getDayKey(today)
+  const weekDates = useMemo(() => WEEK_DAYS.map((day, index) => ({ day, date: addDays(weekStart, index) })), [weekStart])
 
   useEffect(() => {
     let active = true
-    dataRepository.getPublicDailyMenu(today)
-      .then((data) => {
-        if (active) {
-          cachePublicMenu(today, data)
-          setState({ status: 'ready', data, source: 'network' })
-        }
-      })
-      .catch((error) => {
-        if (import.meta.env.DEV) console.error('Falha ao carregar o cardápio público:', error)
-        const cached = getCachedPublicMenu(today)
-        if (active) setState(cached
-          ? { status: 'ready', data: cached, source: 'cache' }
-          : { status: 'error', data: null })
-      })
+    Promise.all(weekDates.map(async ({ day, date }) => {
+      try {
+        const data = await dataRepository.getPublicDailyMenu(date)
+        cachePublicMenu(date, data)
+        return { day, date, ...data, source: 'network', isToday: day.key === todayKey }
+      } catch (error) {
+        if (import.meta.env.DEV) console.error(`Falha ao carregar ${day.label}:`, error)
+        const cached = getCachedPublicMenu(date)
+        return cached
+          ? { day, date, ...cached, source: 'cache', isToday: day.key === todayKey }
+          : { day, date, items: [], foods: [], dailySpecial: '', prices: null, source: 'unavailable', isToday: day.key === todayKey }
+      }
+    })).then((days) => {
+      if (!active) return
+      const available = days.some((entry) => entry.source !== 'unavailable')
+      if (!available) {
+        setState({ status: 'error', data: null })
+        return
+      }
+      const prices = days.find((entry) => entry.prices)?.prices || null
+      setState({ status: 'ready', data: { days, prices }, source: days.some((entry) => entry.source === 'cache') ? 'cache' : 'network' })
+    })
     return () => { active = false }
-  }, [requestKey, today])
+  }, [requestKey, todayKey, weekDates])
 
   useEffect(() => {
     const updateConnection = () => setIsOnline(navigator.onLine)
@@ -75,20 +85,10 @@ export default function PublicMenuPage() {
             {(!isOnline || state.source === 'cache') && (
               <div className="public-offline-notice" role="status">
                 <WifiOff size={16} />
-                <span>{state.source === 'cache'
-                  ? 'Último cardápio salvo neste dispositivo.'
-                  : 'Sem conexão. O cardápio já carregado continua disponível.'}</span>
+                <span>{state.source === 'cache' ? 'Último cardápio salvo neste dispositivo.' : 'Sem conexão. O cardápio já carregado continua disponível.'}</span>
               </div>
             )}
-            <PublicDailyMenu
-              day={day}
-              date={today}
-              items={content?.items || []}
-              foods={content?.foods || []}
-              categories={content?.categories || []}
-              dailySpecial={content?.dailySpecial || ''}
-              prices={content?.prices}
-            />
+            <PublicDailyMenu weekStart={weekStart} days={content?.days || []} prices={content?.prices} />
           </>
         )}
       </div>

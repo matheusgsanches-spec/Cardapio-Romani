@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, CalendarCheck2, ChefHat, Grid2X2, Plus, Sparkles, Utensils } from 'lucide-react'
+import { ArrowRight, CalendarCheck2, ChefHat, Plus, Sparkles, Utensils } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useData } from '../../context/DataContext'
 import { getDayKey, getWeekStart, WEEK_DAYS } from '../../domain/week'
 import Loader from '../../components/ui/Loader'
 
 export default function DashboardPage() {
-  const { foods, categories, loading, subscribeMenu } = useData()
+  const { foods, loading, subscribeMenu } = useData()
   const [menu, setMenu] = useState(null)
   const today = useMemo(() => new Date(), [])
 
@@ -29,7 +29,6 @@ export default function DashboardPage() {
 
       <section className="stat-grid">
         <article className="stat-card"><span className="stat-card__icon stat-card__icon--green"><Utensils size={20} /></span><div><strong>{foods.filter((food) => food.active).length}</strong><span>Alimentos ativos</span></div><Link to="/admin/alimentos"><Plus size={16} /></Link></article>
-        <article className="stat-card"><span className="stat-card__icon stat-card__icon--gold"><Grid2X2 size={20} /></span><div><strong>{categories.filter((category) => category.active).length}</strong><span>Categorias</span></div><Link to="/admin/categorias"><ArrowRight size={16} /></Link></article>
         <article className="stat-card"><span className="stat-card__icon stat-card__icon--blue"><CalendarCheck2 size={20} /></span><div><strong>{filledDays}<small>/7</small></strong><span>Dias planejados</span></div><Link to="/admin/cardapio"><ArrowRight size={16} /></Link></article>
       </section>
 
@@ -40,8 +39,7 @@ export default function DashboardPage() {
             <div className="today-summary__list">
               {todayItems.slice(0, 6).map((item) => {
                 const food = getFood(item.foodId)
-                const category = categories.find((entry) => entry.id === food?.categoryId)
-                return <div key={item.instanceId}><span><ChefHat size={17} /></span><div><strong>{food?.name || 'Alimento removido'}</strong><small>{category?.name || 'Sem categoria'}</small></div></div>
+                return <div key={item.instanceId}><span><ChefHat size={17} /></span><div><strong>{food?.name || 'Alimento removido'}</strong></div></div>
               })}
             </div>
           ) : <div className="compact-empty"><ChefHat size={24} /><p>Nenhum alimento planejado para hoje.</p></div>}

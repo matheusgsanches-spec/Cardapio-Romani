@@ -3,7 +3,6 @@ import {
   CalendarDays,
   ChartNoAxesColumnIncreasing,
   ChevronLeft,
-  Grid2X2,
   LayoutDashboard,
   LogOut,
   Utensils,
@@ -16,7 +15,6 @@ const navigation = [
   { to: '/admin', end: true, label: 'Visão geral', icon: LayoutDashboard },
   { to: '/admin/cardapio', label: 'Cardápio semanal', icon: CalendarDays },
   { to: '/admin/alimentos', label: 'Alimentos', icon: Utensils },
-  { to: '/admin/categorias', label: 'Categorias', icon: Grid2X2 },
   { to: '/admin/tabela', label: 'Visualizar tabela', icon: ChartNoAxesColumnIncreasing },
 ]
 

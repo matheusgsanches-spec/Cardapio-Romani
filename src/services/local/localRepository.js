@@ -100,13 +100,11 @@ export const localRepository = {
       .sort((first, second) => (first.order ?? 0) - (second.order ?? 0))
     const foodIds = new Set(items.map((item) => item.foodId))
     const foods = read('foods', seedFoods).filter((food) => foodIds.has(food.id))
-    const categoryIds = new Set(foods.map((food) => food.categoryId))
-    const categories = read('categories', seedCategories).filter((category) => categoryIds.has(category.id))
     return {
       menu: publicMenu,
       items,
       foods,
-      categories,
+      categories: [],
       dailySpecial: String(publicMenu.dailySpecials?.[dayKey] || ''),
       prices: serializeMenuPrices(publicMenu.prices),
     }

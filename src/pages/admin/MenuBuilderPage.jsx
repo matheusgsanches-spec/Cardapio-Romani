@@ -11,7 +11,7 @@ import { useToast } from '../../context/ToastContext'
 import { getWeekStart } from '../../domain/week'
 
 export default function MenuBuilderPage() {
-  const { foods, categories, getMenu, saveMenu } = useData()
+  const { foods, getMenu, saveMenu } = useData()
   const { showToast } = useToast()
   const [weekStart, setWeekStart] = useState(getWeekStart(new Date()))
   const [menu, setMenu] = useState(null)
@@ -130,7 +130,6 @@ export default function MenuBuilderPage() {
             days={menu.days}
             dailySpecials={menu.dailySpecials}
             foods={foods}
-            categories={categories}
             onChange={(days) => { setMenu((current) => ({ ...current, days })); markChanged() }}
             onDailySpecialChange={(day, value) => { setMenu((current) => ({ ...current, dailySpecials: { ...current.dailySpecials, [day]: value } })); markChanged() }}
           />

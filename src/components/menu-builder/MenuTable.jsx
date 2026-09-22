@@ -1,28 +1,34 @@
 import { ClipboardList } from 'lucide-react'
-import { BRAND_CATEGORY_HUES } from '../../config/brand'
-import { WEEK_DAYS } from '../../domain/week'
+import { addDays, formatLongDate, WEEK_DAYS } from '../../domain/week'
 import EmptyState from '../ui/EmptyState'
 
-export default function MenuTable({ menu, foods, categories }) {
-  const activeRows = categories
-    .map((category) => ({
-      category,
-      days: Object.fromEntries(WEEK_DAYS.map(({ key }) => [key, (menu?.days?.[key] || [])
-        .map((entry) => foods.find((food) => food.id === entry.foodId))
-        .filter((food) => food?.categoryId === category.id)])),
-    }))
-    .filter((row) => WEEK_DAYS.some(({ key }) => row.days[key].length))
+export default function MenuTable({ menu, foods, weekStart }) {
+  const foodsById = new Map(foods.map((food) => [food.id, food]))
+  const rows = WEEK_DAYS.map((day, index) => {
+    const items = menu?.days?.[day.key] || []
+    return {
+      day,
+      date: addDays(weekStart, index),
+      dailySpecial: menu?.dailySpecials?.[day.key] || '',
+      foods: items.map((item) => foodsById.get(item.foodId)).filter(Boolean),
+    }
+  })
 
-  if (!activeRows.length) return <EmptyState icon={ClipboardList} title="Cardápio ainda vazio" description="Adicione alimentos no construtor para gerar a tabela desta semana." />
+  if (!rows.some((row) => row.foods.length || row.dailySpecial)) {
+    return <EmptyState icon={ClipboardList} title="Cardápio ainda vazio" description="Adicione alimentos no construtor para gerar a tabela desta semana." />
+  }
+
   return (
     <div className="menu-table-scroll">
       <table className="menu-table">
-        <thead><tr><th>Categoria</th>{WEEK_DAYS.map((day) => <th key={day.key}><span>{day.short}</span><small>{day.label}</small></th>)}</tr></thead>
+        <thead><tr><th>Dia</th><th>Data</th><th>Prato feito</th><th>Alimentos do buffet</th></tr></thead>
         <tbody>
-          {activeRows.map(({ category, days }, index) => (
-            <tr key={category.id}>
-              <th><i style={{ '--row-hue': BRAND_CATEGORY_HUES[index % BRAND_CATEGORY_HUES.length] }} />{category.name}</th>
-              {WEEK_DAYS.map((day) => <td key={day.key}>{days[day.key].length ? days[day.key].map((food) => <span key={food.id}>{food.name}</span>) : <em>—</em>}</td>)}
+          {rows.map(({ day, date, dailySpecial, foods: dayFoods }) => (
+            <tr key={day.key}>
+              <th><strong>{day.label}</strong><small>{day.short}</small></th>
+              <td>{formatLongDate(date)}</td>
+              <td>{dailySpecial || <em>—</em>}</td>
+              <td>{dayFoods.length ? dayFoods.map((food) => <span key={food.id}>{food.name}</span>) : <em>—</em>}</td>
             </tr>
           ))}
         </tbody>

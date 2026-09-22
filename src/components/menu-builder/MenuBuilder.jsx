@@ -11,14 +11,13 @@ import {
 } from '@dnd-kit/core'
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { ChevronLeft, ChevronRight, Library } from 'lucide-react'
-import { BRAND_CATEGORY_HUES } from '../../config/brand'
 import { getDayKey, getWeekId, WEEK_DAYS } from '../../domain/week'
 import { useToast } from '../../context/ToastContext'
 import FoodLibrary from './FoodLibrary'
 import DayColumn from './DayColumn'
 import FoodCard from './FoodCard'
 
-export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, onDailySpecialChange, foods, categories }) {
+export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, onDailySpecialChange, foods }) {
   const { showToast } = useToast()
   const currentWeek = getWeekId(new Date()) === getWeekId(weekStart)
   const todayKey = getDayKey(new Date())
@@ -32,10 +31,6 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
   const activeFood = useMemo(() => activeDrag ? foods.find((food) => food.id === activeDrag.foodId) : null, [activeDrag, foods])
-  const activeCategoryIndex = activeFood ? categories.findIndex((category) => category.id === activeFood.categoryId) : -1
-  const activeCategory = activeCategoryIndex >= 0
-    ? { ...categories[activeCategoryIndex], hue: BRAND_CATEGORY_HUES[activeCategoryIndex % BRAND_CATEGORY_HUES.length] }
-    : null
 
   function updateDay(day, updater) {
     onChange({ ...days, [day]: updater(days[day] || []).map((item, order) => ({ ...item, order })) })
@@ -112,7 +107,7 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
       {mobileLibraryOpen && !activeDrag && <button className="mobile-library-scrim" type="button" onClick={() => setMobileLibraryOpen(false)} aria-label="Fechar biblioteca" />}
       <div className={`builder-layout ${activeDrag ? 'builder-layout--dragging' : ''}`}>
         <div className={`builder-library-panel ${mobileLibraryOpen ? 'is-open' : ''}`}>
-          <FoodLibrary foods={foods} categories={categories} onClose={() => setMobileLibraryOpen(false)} />
+          <FoodLibrary foods={foods} onClose={() => setMobileLibraryOpen(false)} />
         </div>
         <div className="days-board">
           {WEEK_DAYS.map((day, index) => {
@@ -129,7 +124,6 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
                 items={dayItems}
                 dailySpecial={dailySpecials?.[day.key] || ''}
                 foods={foods}
-                categories={categories}
                 mobileVisible={mobileDay === index}
                 dragActive={Boolean(activeDrag)}
                 dropBlocked={dropBlocked}
@@ -141,7 +135,7 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
           })}
         </div>
       </div>
-      <DragOverlay dropAnimation={{ duration: 180, easing: 'ease' }}>{activeFood ? <FoodCard food={activeFood} category={activeCategory} overlay /> : null}</DragOverlay>
+      <DragOverlay dropAnimation={{ duration: 180, easing: 'ease' }}>{activeFood ? <FoodCard food={activeFood} overlay /> : null}</DragOverlay>
     </DndContext>
   )
 }

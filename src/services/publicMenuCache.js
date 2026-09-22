@@ -11,13 +11,11 @@ function createSnapshot(data) {
   return {
     cachedAt: new Date().toISOString(),
     items: (data?.items || []).map(({ id, foodId, order }) => ({ id, foodId, order })),
-    foods: (data?.foods || []).map(({ id, name, description, categoryId }) => ({
+    foods: (data?.foods || []).map(({ id, name, description }) => ({
       id,
       name,
       description,
-      categoryId,
     })),
-    categories: (data?.categories || []).map(({ id, name, order }) => ({ id, name, order })),
     dailySpecial: String(data?.dailySpecial || ''),
     prices: {
       buffet: data?.prices?.buffet ?? null,
@@ -43,7 +41,7 @@ export function cachePublicMenu(date, data) {
 export function getCachedPublicMenu(date) {
   try {
     const cached = JSON.parse(localStorage.getItem(getCacheKey(date)))
-    if (!cached || !Array.isArray(cached.items) || !Array.isArray(cached.foods) || !Array.isArray(cached.categories)) {
+    if (!cached || !Array.isArray(cached.items) || !Array.isArray(cached.foods)) {
       return null
     }
     return cached

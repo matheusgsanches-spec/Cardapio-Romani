@@ -8,7 +8,6 @@ import PwaPrompt from './components/pwa/PwaPrompt'
 import DashboardPage from './pages/admin/DashboardPage'
 import MenuBuilderPage from './pages/admin/MenuBuilderPage'
 import FoodsPage from './pages/admin/FoodsPage'
-import CategoriesPage from './pages/admin/CategoriesPage'
 import MenuTablePage from './pages/admin/MenuTablePage'
 import PublicMenuPage from './pages/public/PublicMenuPage'
 import LoginPage from './pages/LoginPage'
@@ -28,7 +27,6 @@ export default function App() {
                 <Route index element={<DashboardPage />} />
                 <Route path="cardapio" element={<MenuBuilderPage />} />
                 <Route path="alimentos" element={<FoodsPage />} />
-                <Route path="categorias" element={<CategoriesPage />} />
                 <Route path="tabela" element={<MenuTablePage />} />
               </Route>
             </Route>

@@ -15,7 +15,7 @@ import { hasExportableMenuContent } from '../../services/export/menuWorkbook'
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export default function MenuTablePage() {
-  const { foods, categories, getMenu } = useData()
+  const { foods, getMenu } = useData()
   const { showToast } = useToast()
   const [weekStart, setWeekStart] = useState(getWeekStart(new Date()))
   const [menu, setMenu] = useState(null)
@@ -33,7 +33,7 @@ export default function MenuTablePage() {
     setExporting(true)
     try {
       const { exportMenuXlsx } = await import('../../services/export/menuXlsx')
-      const filename = await exportMenuXlsx({ menu, foods, categories, weekStart })
+      const filename = await exportMenuXlsx({ menu, foods, weekStart })
       showToast(`${filename} exportado com sucesso.`)
     } catch (error) {
       if (import.meta.env.DEV) console.error('Falha ao exportar XLSX:', error)
@@ -81,8 +81,8 @@ export default function MenuTablePage() {
             </div>
           )}
         </header>
-        <header className="section-header"><div><span className="eyebrow">VISÃO CONSOLIDADA</span><h3><FileSpreadsheet size={20} /> Cardápio por categoria</h3></div><span className="count-pill">{categories.length} categorias</span></header>
-        {loading ? <Loader label="Montando tabela..." /> : <MenuTable menu={menu} foods={foods} categories={categories} />}
+        <header className="section-header"><div><span className="eyebrow">VISÃO CONSOLIDADA</span><h3><FileSpreadsheet size={20} /> Cardápio completo da semana</h3></div><span className="count-pill">7 dias</span></header>
+        {loading ? <Loader label="Montando tabela..." /> : <MenuTable menu={menu} foods={foods} weekStart={weekStart} />}
       </section>
     </div>
   )

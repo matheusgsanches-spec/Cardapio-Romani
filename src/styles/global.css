@@ -270,7 +270,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .table-row:last-child { border-bottom: 0; }
 .table-heading { background: #fafbf9; min-height: 39px; color: #929d97; text-transform: uppercase; letter-spacing: .08em; font-size: 8px; font-weight: 800; }
 .table-row--categories { grid-template-columns: minmax(230px, 1.4fr) minmax(100px, .7fr) 70px minmax(100px, .6fr) 80px; }
-.table-row--foods { grid-template-columns: minmax(190px, 1.2fr) minmax(105px, .65fr) minmax(180px, 1.25fr) minmax(90px, .5fr) 80px; }
+.table-row--foods { grid-template-columns: minmax(220px, 1.3fr) minmax(220px, 1.4fr) minmax(100px, .65fr) 80px; }
 .entity-name { display: flex; align-items: center; min-width: 0; gap: 11px; }
 .entity-avatar { flex: 0 0 auto; width: 37px; height: 37px; border-radius: 9px; display: grid; place-items: center; background: #edf3ef; color: #46705b; }
 .entity-avatar--food { background: #f5eee3; color: #9b6f35; }
@@ -396,17 +396,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .menu-table-card { padding: 21px; }
 .menu-table-card > .section-header { padding-bottom: 18px; }
 .menu-table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 9px; }
-.menu-table { width: 100%; min-width: 1050px; border-collapse: collapse; table-layout: fixed; }
+.menu-table { width: 100%; min-width: 0; border-collapse: collapse; table-layout: fixed; }
 .menu-table th, .menu-table td { border-right: 1px solid #e9ecea; border-bottom: 1px solid #e9ecea; padding: 11px 10px; text-align: left; vertical-align: top; }
 .menu-table tr:last-child th, .menu-table tr:last-child td { border-bottom: 0; }
 .menu-table th:last-child, .menu-table td:last-child { border-right: 0; }
 .menu-table thead th { background: #f7f9f7; color: #435249; height: 48px; vertical-align: middle; }
-.menu-table thead th:first-child { width: 145px; color: #8b9690; text-transform: uppercase; font-size: 8px; letter-spacing: .09em; }
-.menu-table thead th span { display: block; font-size: 10px; }
-.menu-table thead th small { display: block; color: #9aa49e; font-size: 7px; margin-top: 2px; font-weight: 500; }
-.menu-table tbody th { position: relative; color: #39483f; font-size: 10px; background: #fbfcfb; padding-left: 17px; }
-.menu-table tbody th i { position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: hsl(var(--row-hue), 38%, 55%); }
-.menu-table td span { display: block; color: #536159; font-size: 9px; line-height: 1.35; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #e8ebe9; }
+.menu-table thead th:first-child { width: 18%; }
+.menu-table thead th:nth-child(2) { width: 18%; }
+.menu-table thead th:nth-child(3) { width: 28%; }
+.menu-table thead th:nth-child(4) { width: 36%; }
+.menu-table tbody th { color: #39483f; font-size: 12px; background: #fbfcfb; }
+.menu-table tbody th strong { display: block; }
+.menu-table tbody th small { color: #8b9690; font-size: 10px; font-weight: 500; }
+.menu-table td { color: #536159; font-size: 12px; line-height: 1.45; }
+.menu-table td span { display: block; color: #536159; font-size: 12px; line-height: 1.35; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #e8ebe9; }
 .menu-table td span:last-child { margin: 0; padding: 0; border: 0; }
 .menu-table td em { color: #bec5c1; font-style: normal; }
 
@@ -450,6 +453,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .public-food:first-child { border-top: 0; padding-top: 1px; }
 .public-food strong { color: var(--coffee-900); font-family: 'Playfair Display', Georgia, serif; font-size: 17px; line-height: 1.3; font-weight: 600; }
 .public-food p { color: #69776f; font-size: 11px; margin: 4px 0 0; line-height: 1.5; }
+.public-week-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.public-day-card { padding: 20px; border: 1px solid #decfbf; background: rgba(255,255,255,.9); border-radius: 12px; box-shadow: 0 7px 20px rgba(51, 42, 29, .06); }
+.public-day-card--today { border-color: var(--green-700); box-shadow: 0 8px 24px rgba(56, 150, 67, .14); }
+.public-day-card__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #eadfd2; }
+.public-day-card__header > div { display: flex; flex-direction: column; gap: 3px; }
+.public-day-card__header span { color: var(--coffee-900); font: 600 21px/1.15 'Playfair Display', Georgia, serif; }
+.public-day-card__header small { color: #718078; font-size: 11px; text-transform: capitalize; }
+.public-day-card__header > strong { color: white; background: var(--green-700); border-radius: 999px; padding: 5px 9px; font-size: 9px; letter-spacing: .08em; }
+.public-day-card__special { display: flex; gap: 10px; margin: 14px 0; padding: 11px 12px; border-radius: 8px; background: #fff3e4; color: var(--orange-700); }
+.public-day-card__special > div { min-width: 0; }
+.public-day-card__special small { font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.public-day-card__special p { margin: 3px 0 0; color: var(--coffee-900); font: 600 15px/1.35 'Playfair Display', Georgia, serif; overflow-wrap: anywhere; }
+.public-day-card__foods { margin-top: 15px; }
+.public-day-card__foods-title { display: flex; align-items: center; gap: 6px; color: var(--green-800); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+.public-day-card__foods .public-food { padding: 10px 0; }
+.public-day-card__empty { min-height: 88px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #929b95; font-size: 12px; }
+.food-library__items { display: flex; flex-direction: column; gap: 8px; }
 .public-empty { width: 100%; max-width: 570px; min-height: 240px; margin: 20px auto 70px; border: 1px solid #e1d9ca; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; background: rgba(255,255,255,.5); }
 .public-empty > span { width: 58px; height: 58px; display: grid; place-items: center; border: 1px solid #decdae; color: #a57b40; border-radius: 50%; }
 .public-empty h2 { width: 100%; max-width: 460px; overflow-wrap: anywhere; font-family: 'Playfair Display', Georgia, serif; color: #2c4035; font-size: 23px; margin: 17px 0 6px; }
@@ -505,7 +525,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .builder-toolbar__actions { flex-wrap: wrap; justify-content: flex-end; }
   .unsaved-indicator, .saved-indicator, .draft-indicator, .published-indicator { width: 100%; justify-content: flex-end; }
   .dashboard-grid { grid-template-columns: 1fr; }
-  .table-row--foods { grid-template-columns: minmax(180px, 1fr) minmax(100px, .5fr) minmax(110px, .8fr) 85px 75px; }
+  .table-row--foods { grid-template-columns: minmax(180px, 1fr) minmax(150px, 1fr) 90px 75px; }
 }
 
 @media (max-width: 900px) {
@@ -562,8 +582,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .toolbar-card--foods > .button { width: auto; flex: 1; }
   .table-heading { display: none; }
   .table-row--categories, .table-row--foods { position: relative; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; min-height: 76px; }
-  .table-row--categories > span:nth-of-type(1), .table-row--categories > span:nth-of-type(2), .table-row--foods > .category-chip, .description-cell { display: none; }
-  .table-row--categories > span:nth-of-type(3), .table-row--foods > span:nth-of-type(3) { grid-column: 1; padding-left: 48px; margin-top: -18px; }
+  .table-row--categories > span:nth-of-type(1), .table-row--categories > span:nth-of-type(2), .description-cell { display: none; }
+  .table-row--foods > span:nth-of-type(2) { grid-column: 1; padding-left: 48px; margin-top: -18px; display: block; }
   .row-actions { grid-column: 2; grid-row: 1 / span 2; }
   .mobile-only { display: block; }
   .builder-toolbar { flex-direction: column; align-items: stretch; padding: 10px; }
@@ -605,9 +625,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .public-header__meta { font-size: 8px; }
   .public-page__content { width: min(calc(100% - 24px), 1180px); padding: 24px 0 28px; }
   .public-hero { margin-bottom: 21px; }
-  .public-menu-grid { grid-template-columns: 1fr; gap: 11px; }
+  .public-menu-grid, .public-week-grid { grid-template-columns: 1fr; gap: 11px; }
   .public-category--featured { grid-row: auto; }
-  .public-category { padding: 17px; }
+  .public-category, .public-day-card { padding: 17px; }
   .public-footer { grid-template-columns: 1fr; text-align: center; padding: 29px 20px; gap: 20px; }
   .public-footer > div:first-child { display: flex; flex-direction: column; align-items: center; }
   .public-footer > div:last-child { justify-content: center; }
@@ -632,7 +652,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
-@page { size: landscape; margin: 10mm; }
+@page { size: A4 portrait; margin: 12mm; }
 
 @media print {
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -643,26 +663,26 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .page-stack { display: block; }
   .menu-table-card { padding: 0; border: 0; border-radius: 0; box-shadow: none; }
   .menu-table-card > .section-header { display: none; }
-  .print-menu-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 18px; margin-bottom: 8mm; padding-bottom: 4mm; border-bottom: 2px solid var(--orange-600); }
+  .print-menu-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 18px; margin-bottom: 8mm; padding-bottom: 4mm; border-bottom: 3px solid #EE7900; }
   .print-menu-header__brand { display: flex; align-items: center; gap: 9px; }
   .print-menu-header__brand .brand-logo { width: 54px; height: 54px; }
   .print-menu-header__brand > div { display: flex; flex-direction: column; }
-  .print-menu-header__brand strong { color: var(--coffee-900); font: 700 15px 'Playfair Display', Georgia, serif; text-transform: uppercase; letter-spacing: .08em; }
+  .print-menu-header__brand strong { color: #3B2021; font: 700 18px 'Playfair Display', Georgia, serif; text-transform: uppercase; letter-spacing: .08em; }
   .print-menu-header__brand small { color: #8b6b57; font-size: 7px; }
   .print-menu-header__title { text-align: center; display: flex; flex-direction: column; gap: 4px; }
   .print-menu-header__title span { color: var(--green-800); font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-  .print-menu-header__title strong { color: var(--coffee-900); font: 700 16px 'Playfair Display', Georgia, serif; }
+  .print-menu-header__title strong { color: #3B2021; font: 700 20px 'Playfair Display', Georgia, serif; }
   .print-menu-header__prices { justify-self: end; display: flex; gap: 8px; }
-  .print-menu-header__prices span { min-width: 86px; padding: 6px 8px; border: 1px solid #e7c89f; border-radius: 6px; display: flex; flex-direction: column; color: #6e5a4d; font-size: 7px; font-weight: 700; text-transform: uppercase; }
-  .print-menu-header__prices strong { margin-top: 2px; color: var(--orange-700); font: 700 12px 'Playfair Display', Georgia, serif; white-space: nowrap; }
+  .print-menu-header__prices span { min-width: 100px; padding: 8px 10px; border: 2px solid #e7c89f; border-radius: 6px; display: flex; flex-direction: column; color: #6e5a4d; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+  .print-menu-header__prices strong { margin-top: 3px; color: #EE7900; font: 700 15px 'Playfair Display', Georgia, serif; white-space: nowrap; }
   .menu-table-scroll { overflow: visible; border-color: #cfc7bc; border-radius: 0; }
   .menu-table { width: 100%; min-width: 0; table-layout: fixed; }
   .menu-table thead { display: table-header-group; }
   .menu-table tr { break-inside: avoid; page-break-inside: avoid; }
-  .menu-table th, .menu-table td { padding: 6px 5px; border-color: #d9d4cc; }
-  .menu-table thead th { height: 34px; }
-  .menu-table thead th:first-child { width: 100px; }
-  .menu-table tbody th { padding-left: 11px; font-size: 8px; }
-  .menu-table tbody th i { top: 6px; bottom: 6px; }
-  .menu-table td span { margin-bottom: 3px; padding-bottom: 3px; font-size: 8px; line-height: 1.25; }
+  .menu-table th, .menu-table td { padding: 11px 9px; border-color: #cfc7bc; }
+  .menu-table thead th { height: 42px; background: #389643; color: #fff; font-size: 12px; }
+  .menu-table tbody th { padding-left: 9px; font-size: 12px; background: #FFF8EE; }
+  .menu-table tbody th small { display: block; font-size: 10px; }
+  .menu-table td, .menu-table td span { font-size: 12px; line-height: 1.4; color: #3B2021; }
+  .menu-table td span { margin-bottom: 4px; padding-bottom: 4px; }
 }

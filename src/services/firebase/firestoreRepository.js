@@ -27,7 +27,6 @@ async function saveEntity(collectionName, entity) {
   }
 
   if (collectionName === 'foods') {
-    payload.categoryId = entity.categoryId
     payload.description = entity.description?.trim() || ''
   }
 
@@ -81,15 +80,11 @@ export const firestoreRepository = {
     const foodIds = [...new Set(items.map((item) => item.foodId))]
     const foodSnapshots = await Promise.all(foodIds.map((id) => getDoc(doc(db, 'foods', id))))
     const foods = foodSnapshots.filter((snapshot) => snapshot.exists()).map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
-    const categoryIds = [...new Set(foods.map((food) => food.categoryId).filter(Boolean))]
-    const categorySnapshots = await Promise.all(categoryIds.map((id) => getDoc(doc(db, 'categories', id))))
-    const categories = categorySnapshots.filter((snapshot) => snapshot.exists()).map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }))
-
     return {
       menu: publicMenu,
       items,
       foods,
-      categories,
+      categories: [],
       dailySpecial: String(publicMenu.dailySpecials?.[dayKey] || ''),
       prices: serializeMenuPrices(publicMenu.prices),
     }

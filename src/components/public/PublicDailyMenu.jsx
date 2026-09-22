@@ -1,12 +1,14 @@
-import { Beef, ChefHat, CookingPot, IceCreamBowl, Leaf, Soup, UtensilsCrossed, Wheat } from 'lucide-react'
-import { formatPublicDate } from '../../domain/week'
-import { groupDailyFoods } from '../../domain/menuPresentation'
+import { ChefHat, CookingPot, UtensilsCrossed } from 'lucide-react'
+import { formatPublicDate, formatWeekRange } from '../../domain/week'
 
-const categoryIcons = [Wheat, Soup, Beef, CookingPot, Leaf, UtensilsCrossed, IceCreamBowl]
 const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 
-export default function PublicDailyMenu({ day, date, items, foods, categories, dailySpecial, prices }) {
-  const groups = groupDailyFoods(items, foods, categories)
+function getDayFoods(items, foods) {
+  const foodsById = new Map(foods.map((food) => [food.id, food]))
+  return items.map((item) => foodsById.get(item.foodId)).filter(Boolean)
+}
+
+export default function PublicDailyMenu({ weekStart, days, prices }) {
   const visiblePrices = [
     { key: 'buffet', label: 'Buffet', value: prices?.buffet },
     { key: 'dailySpecial', label: 'Prato feito', value: prices?.dailySpecial },
@@ -16,11 +18,12 @@ export default function PublicDailyMenu({ day, date, items, foods, categories, d
     <>
       <section className="public-hero">
         <span className="public-hero__line" />
-        <span className="eyebrow eyebrow--gold">BUFFET DE HOJE</span>
-        <h1>{day.label}</h1>
-        <p>{formatPublicDate(date)}</p>
+        <span className="eyebrow eyebrow--gold">CARDÁPIO DA SEMANA</span>
+        <h1>Sabores da semana</h1>
+        <p>{formatWeekRange(weekStart)}</p>
         <div className="public-hero__ornament"><i /><ChefHat size={21} /><i /></div>
       </section>
+
       {visiblePrices.length > 0 && (
         <section className="public-prices" aria-label="Preços do cardápio">
           {visiblePrices.map(({ key, label, value }) => (
@@ -31,38 +34,44 @@ export default function PublicDailyMenu({ day, date, items, foods, categories, d
           ))}
         </section>
       )}
-      {dailySpecial && (
-        <article className="public-daily-special">
-          <span><ChefHat size={24} /></span>
-          <div><small>PRATO FEITO DO DIA</small><p>{dailySpecial}</p></div>
-        </article>
-      )}
-      {groups.length ? (
-        <section className="public-menu-grid">
-          {groups.map(({ category, foods: groupFoods }, index) => {
-            const Icon = categoryIcons[index % categoryIcons.length]
-            return (
-            <article className="public-category" key={category.id}>
-              <header><span><Icon size={20} /></span><h2>{category.name}</h2><i /></header>
-              <div>
-                {groupFoods.map((food) => (
-                  <div className="public-food" key={food.id}>
-                    <strong>{food.name}</strong>
-                    {food.description && <p>{food.description}</p>}
-                  </div>
-                ))}
-              </div>
+
+      <section className="public-week-grid" aria-label="Cardápio completo da semana">
+        {days.map(({ day, date, items, foods, dailySpecial, isToday }) => {
+          const dayFoods = getDayFoods(items, foods)
+          return (
+            <article className={`public-day-card ${isToday ? 'public-day-card--today' : ''}`} key={day.key}>
+              <header className="public-day-card__header">
+                <div>
+                  <span>{day.label}</span>
+                  <small>{formatPublicDate(date)}</small>
+                </div>
+                {isToday && <strong>HOJE</strong>}
+              </header>
+
+              {dailySpecial && (
+                <div className="public-day-card__special">
+                  <ChefHat size={17} />
+                  <div><small>PRATO FEITO</small><p>{dailySpecial}</p></div>
+                </div>
+              )}
+
+              {dayFoods.length > 0 ? (
+                <div className="public-day-card__foods">
+                  <div className="public-day-card__foods-title"><UtensilsCrossed size={15} /> Buffet</div>
+                  {dayFoods.map((food) => (
+                    <div className="public-food" key={food.id}>
+                      <strong>{food.name}</strong>
+                      {food.description && <p>{food.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              ) : !dailySpecial ? (
+                <div className="public-day-card__empty"><CookingPot size={19} /><span>Cardápio em breve</span></div>
+              ) : null}
             </article>
-            )
-          })}
-        </section>
-      ) : !dailySpecial ? (
-        <section className="public-empty">
-          <span><CookingPot size={30} /></span>
-          <h2>Cardápio de hoje ainda não disponível.</h2>
-          <p>Consulte novamente em breve.</p>
-        </section>
-      ) : null}
+          )
+        })}
+      </section>
     </>
   )
 }
