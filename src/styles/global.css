@@ -652,7 +652,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
-@page { size: A4 portrait; margin: 12mm; }
+@page { size: A4 portrait; margin: 5mm; }
 
 @media print {
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -663,26 +663,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .page-stack { display: block; }
   .menu-table-card { padding: 0; border: 0; border-radius: 0; box-shadow: none; }
   .menu-table-card > .section-header { display: none; }
-  .print-menu-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 18px; margin-bottom: 8mm; padding-bottom: 4mm; border-bottom: 3px solid #EE7900; }
+  .print-menu-header { break-after: avoid; page-break-after: avoid; }
+  .print-menu-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; margin-bottom: 8mm; padding-bottom: 4mm; border-bottom: 3px solid #EE7900; }
   .print-menu-header__brand { display: flex; align-items: center; gap: 9px; }
-  .print-menu-header__brand .brand-logo { width: 54px; height: 54px; }
+  .print-menu-header__brand .brand-logo { width: 58px; height: 58px; }
   .print-menu-header__brand > div { display: flex; flex-direction: column; }
-  .print-menu-header__brand strong { color: #3B2021; font: 700 18px 'Playfair Display', Georgia, serif; text-transform: uppercase; letter-spacing: .08em; }
-  .print-menu-header__brand small { color: #8b6b57; font-size: 7px; }
+  .print-menu-header__brand strong { color: #3B2021; font: 700 17px 'Playfair Display', Georgia, serif; text-transform: uppercase; letter-spacing: .06em; }
+  .print-menu-header__brand small { color: #8b6b57; font-size: 8px; }
   .print-menu-header__title { text-align: center; display: flex; flex-direction: column; gap: 4px; }
-  .print-menu-header__title span { color: var(--green-800); font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-  .print-menu-header__title strong { color: #3B2021; font: 700 20px 'Playfair Display', Georgia, serif; }
-  .print-menu-header__prices { justify-self: end; display: flex; gap: 8px; }
-  .print-menu-header__prices span { min-width: 100px; padding: 8px 10px; border: 2px solid #e7c89f; border-radius: 6px; display: flex; flex-direction: column; color: #6e5a4d; font-size: 9px; font-weight: 700; text-transform: uppercase; }
-  .print-menu-header__prices strong { margin-top: 3px; color: #EE7900; font: 700 15px 'Playfair Display', Georgia, serif; white-space: nowrap; }
+  .print-menu-header__title span { color: #389643; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .print-menu-header__title strong { color: #3B2021; font: 700 21px 'Playfair Display', Georgia, serif; }
+  .print-menu-header__prices { justify-self: end; display: flex; gap: 7px; }
+  .print-menu-header__prices span { min-width: 92px; padding: 7px 8px; border: 2px solid #e7c89f; border-radius: 5px; display: flex; flex-direction: column; color: #6e5a4d; font-size: 8px; font-weight: 700; text-transform: uppercase; }
+  .print-menu-header__prices strong { margin-top: 2px; color: #EE7900; font: 700 14px 'Playfair Display', Georgia, serif; white-space: nowrap; }
   .menu-table-scroll { overflow: visible; border-color: #cfc7bc; border-radius: 0; }
   .menu-table { width: 100%; min-width: 0; table-layout: fixed; }
   .menu-table thead { display: table-header-group; }
   .menu-table tr { break-inside: avoid; page-break-inside: avoid; }
-  .menu-table th, .menu-table td { padding: 11px 9px; border-color: #cfc7bc; }
+  .menu-table th, .menu-table td { padding: 12px 10px; border-color: #cfc7bc; }
   .menu-table thead th { height: 42px; background: #389643; color: #fff; font-size: 12px; }
-  .menu-table tbody th { padding-left: 9px; font-size: 12px; background: #FFF8EE; }
+  .menu-table tbody tr { height: 92px; }
+  .menu-table tbody th { padding-left: 10px; font-size: 13px; background: #FFF8EE; }
   .menu-table tbody th small { display: block; font-size: 10px; }
-  .menu-table td, .menu-table td span { font-size: 12px; line-height: 1.4; color: #3B2021; }
-  .menu-table td span { margin-bottom: 4px; padding-bottom: 4px; }
+  .menu-table td, .menu-table td span { font-size: 11px; line-height: 1.2; color: #3B2021; }
+  .menu-table tbody td:last-child span { display: inline; margin: 0; padding: 0; border: 0; white-space: normal; }
+  .menu-table tbody td:last-child span:not(:last-child)::after { content: '  •  '; color: #389643; font-weight: 700; }
 }
