@@ -28,7 +28,12 @@ export default function MenuTable({ menu, foods, weekStart }) {
               <th><strong>{day.label}</strong><small>{day.short}</small></th>
               <td>{formatLongDate(date)}</td>
               <td>{dailySpecial || <em>—</em>}</td>
-              <td>{dayFoods.length ? dayFoods.map((food) => <span key={food.id}>{food.name}</span>) : <em>—</em>}</td>
+              <td>{dayFoods.length ? (
+                <>
+                  <span className="menu-table__foods-screen">{dayFoods.map((food) => <span key={food.id}>{food.name}</span>)}</span>
+                  <span className="menu-table__foods-print">{dayFoods.map((food) => food.name).join(' • ')}</span>
+                </>
+              ) : <em>—</em>}</td>
             </tr>
           ))}
         </tbody>

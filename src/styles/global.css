@@ -411,6 +411,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .menu-table td { color: #536159; font-size: 12px; line-height: 1.45; }
 .menu-table td span { display: block; color: #536159; font-size: 12px; line-height: 1.35; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #e8ebe9; }
 .menu-table td span:last-child { margin: 0; padding: 0; border: 0; }
+.menu-table td .menu-table__foods-screen { display: contents; }
+.menu-table__foods-print { display: none !important; }
 .menu-table td em { color: #bec5c1; font-style: normal; }
 
 /* Public menu */
@@ -686,10 +688,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .menu-table tr { break-inside: avoid; page-break-inside: avoid; }
   .menu-table th, .menu-table td { padding: 8px 9px; border-color: #cfc7bc; }
   .menu-table thead th { height: 36px; background: #389643; color: #fff; font-size: 12px; }
-  .menu-table tbody tr { height: 82px; }
+  .menu-table tbody tr { height: calc((100vh - 200px) / 7); }
   .menu-table tbody th { padding-left: 9px; font-size: 12px; background: #FFF8EE; }
   .menu-table tbody th small { display: block; font-size: 9px; }
   .menu-table td, .menu-table td span { font-size: 11px; line-height: 1.25; color: #3B2021; }
+  .menu-table__foods-screen { display: none !important; }
+  .menu-table__foods-print { display: inline !important; white-space: normal; }
   .menu-table tbody td:last-child span { display: inline; margin: 0; padding: 0; border: 0; white-space: normal; }
   .menu-table tbody td:last-child span:not(:last-child)::after { content: '  •  '; color: #389643; font-weight: 700; }
 }
