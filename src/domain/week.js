@@ -131,6 +131,7 @@ export function normalizeMenu(menu, weekStart) {
     status,
     days,
     dailySpecials: Object.fromEntries(WEEK_DAYS.map(({ key }) => [key, String(sourceDailySpecials[key] || '')])),
+    lockedDays: Object.fromEntries(WEEK_DAYS.map(({ key }) => [key, Boolean(menu?.draftLockedDays?.[key] ?? menu?.lockedDays?.[key])])),
     prices: serializeMenuPrices(sourcePrices),
     publishedDays: menu?.publishedDays || (status === 'published' ? menu?.days : undefined),
     publishedDailySpecials: menu?.publishedDailySpecials || (status === 'published' ? menu?.dailySpecials : undefined),

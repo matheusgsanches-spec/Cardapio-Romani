@@ -17,7 +17,7 @@ import FoodLibrary from './FoodLibrary'
 import DayColumn from './DayColumn'
 import FoodCard from './FoodCard'
 
-export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, onDailySpecialChange, foods }) {
+export default function MenuBuilder({ weekStart, days, dailySpecials, lockedDays = {}, onChange, onDailySpecialChange, onDayLockChange, foods }) {
   const { showToast } = useToast()
   const currentWeek = getWeekId(new Date()) === getWeekId(weekStart)
   const todayKey = getDayKey(new Date())
@@ -33,6 +33,7 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
   const activeFood = useMemo(() => activeDrag ? foods.find((food) => food.id === activeDrag.foodId) : null, [activeDrag, foods])
 
   function updateDay(day, updater) {
+    if (lockedDays[day]) return
     onChange({ ...days, [day]: updater(days[day] || []).map((item, order) => ({ ...item, order })) })
   }
 
@@ -47,6 +48,10 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
     const target = over.data.current
     const targetDay = target?.day
     if (!source || !targetDay) return
+    if (lockedDays[targetDay]) {
+      showToast('Este dia está travado. Destrave para fazer alterações.', 'info')
+      return
+    }
 
     const targetItems = days[targetDay] || []
     const targetIndex = target.type === 'menu'
@@ -64,11 +69,16 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
         foodId: source.foodId,
       })
       updateDay(targetDay, () => nextItems)
+      onDayLockChange(targetDay, true)
       setMobileLibraryOpen(false)
       return
     }
 
     const sourceDay = source.day
+    if (lockedDays[sourceDay]) {
+      showToast('Este dia está travado. Destrave para fazer alterações.', 'info')
+      return
+    }
     const sourceItems = days[sourceDay] || []
     const sourceIndex = sourceItems.findIndex((item) => item.instanceId === source.instanceId)
     if (sourceIndex < 0) return
@@ -92,6 +102,7 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
       [sourceDay]: nextSource.map((item, order) => ({ ...item, order })),
       [targetDay]: nextTarget.map((item, order) => ({ ...item, order })),
     })
+    onDayLockChange(targetDay, true)
   }
 
   return (
@@ -112,8 +123,9 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
         <div className="days-board">
           {WEEK_DAYS.map((day, index) => {
             const dayItems = days[day.key] || []
+            const isLocked = Boolean(lockedDays[day.key])
             const dropBlocked = Boolean(activeDrag)
-              && dayItems.some((item) => item.foodId === activeDrag.foodId)
+              && (isLocked || dayItems.some((item) => item.foodId === activeDrag.foodId))
               && !(activeDrag.type === 'menu' && activeDrag.day === day.key)
             return (
               <DayColumn
@@ -122,6 +134,7 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
                 dayIndex={index}
                 weekStart={weekStart}
                 items={dayItems}
+                locked={isLocked}
                 dailySpecial={dailySpecials?.[day.key] || ''}
                 foods={foods}
                 mobileVisible={mobileDay === index}
@@ -129,7 +142,8 @@ export default function MenuBuilder({ weekStart, days, dailySpecials, onChange, 
                 dropBlocked={dropBlocked}
                 onRemove={(instanceId) => updateDay(day.key, (items) => items.filter((item) => item.instanceId !== instanceId))}
                 onClear={() => updateDay(day.key, () => [])}
-                onDailySpecialChange={(value) => onDailySpecialChange(day.key, value)}
+                onToggleLock={() => onDayLockChange(day.key, !isLocked)}
+                onDailySpecialChange={(value) => { if (!isLocked) onDailySpecialChange(day.key, value) }}
               />
             )
           })}

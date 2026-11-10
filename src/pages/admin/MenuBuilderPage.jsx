@@ -129,9 +129,11 @@ export default function MenuBuilderPage() {
             weekStart={weekStart}
             days={menu.days}
             dailySpecials={menu.dailySpecials}
+            lockedDays={menu.lockedDays}
             foods={foods}
             onChange={(days) => { setMenu((current) => ({ ...current, days })); markChanged() }}
             onDailySpecialChange={(day, value) => { setMenu((current) => ({ ...current, dailySpecials: { ...current.dailySpecials, [day]: value } })); markChanged() }}
+            onDayLockChange={(day, locked) => { setMenu((current) => ({ ...current, lockedDays: { ...current.lockedDays, [day]: locked } })); markChanged() }}
           />
         </>
       )}

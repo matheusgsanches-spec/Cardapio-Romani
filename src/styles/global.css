@@ -376,6 +376,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .day-column > header > i { font-style: normal; font-size: 6px; padding: 4px 6px; border-radius: 5px; color: #47705a; background: #e7f0ea; font-weight: 800; letter-spacing: .09em; }
 .day-column__meta { height: 40px; padding: 0 11px 0 14px; display: flex; align-items: center; justify-content: space-between; color: #64736a; font-size: 10px; }
 .day-column__meta button { min-height: 30px; border: 0; background: transparent; color: #8e5555; font-size: 10px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+.day-column__meta > div { display: flex; align-items: center; gap: 7px; }
+.day-column__meta .day-lock-button { color: #426b53; font-weight: 700; }
+.day-lock-status { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; color: #8a6237; font-weight: 700; }
+.day-column--locked { border-color: #d7c5a8; background: #fcfaf6; }
+.day-column--locked .daily-special-field textarea { background: #f3f1ed; color: #7e847f; cursor: not-allowed; }
 .daily-special-field { position: relative; margin: 0 8px 9px; padding: 10px; border: 1px solid #dac9a8; border-radius: 9px; background: #fffaf0; display: flex; flex-direction: column; gap: 7px; }
 .daily-special-field > span { color: #76592d; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; }
 .daily-special-field textarea { width: 100%; min-height: 74px; resize: vertical; border: 1px solid #ded6c7; border-radius: 7px; padding: 9px 10px 18px; background: white; color: #29382f; font: inherit; font-size: 12px; line-height: 1.45; outline: 0; }

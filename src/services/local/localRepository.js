@@ -134,6 +134,7 @@ export const localRepository = {
       status: nextStatus,
       draftDays,
       draftDailySpecials,
+      draftLockedDays: menu.lockedDays || {},
       draftPrices,
       hasUnpublishedChanges,
       updatedAt: now,
@@ -177,6 +178,7 @@ export const localRepository = {
       exists: true,
       days: draftDays,
       dailySpecials: draftDailySpecials,
+      lockedDays: menu.lockedDays || {},
       prices: draftPrices,
     }
   },
